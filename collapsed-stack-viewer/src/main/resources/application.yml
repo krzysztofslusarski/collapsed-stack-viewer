@@ -1,0 +1,15 @@
+spring:
+  thymeleaf:
+    cache: false
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+server:
+  tomcat:
+    max-http-post-size: 1024MB
+  port: 8079
+
+external:
+  flame-graph:
+    path: .
