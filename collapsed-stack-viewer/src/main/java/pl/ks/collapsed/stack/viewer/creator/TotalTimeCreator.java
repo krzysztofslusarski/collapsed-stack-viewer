@@ -36,11 +36,10 @@ import pl.ks.profiling.gui.commons.TableWithLinks;
 @RequiredArgsConstructor
 public class TotalTimeCreator implements PageCreator {
     private static final BigDecimal PERCENT_MULTIPLICAND = new BigDecimal(100);
-    private static final BigDecimal THRESHOLD = new BigDecimal("0.005");
 
     private final CollapsedStackInfo collapsedStackInfo;
-    private final String appName;
     private final String collapsedStackFileName;
+    private final BigDecimal threshold;
 
     @Override
     public Page create() {
@@ -75,7 +74,7 @@ public class TotalTimeCreator implements PageCreator {
     }
 
     private boolean overThreshold(BigDecimal totalCount, MethodInfo methodInfo) {
-        return new BigDecimal(methodInfo.getTotalSamples()).divide(totalCount, 3, RoundingMode.HALF_EVEN).compareTo(THRESHOLD) > 0;
+        return new BigDecimal(methodInfo.getTotalSamples()).divide(totalCount, 3, RoundingMode.HALF_EVEN).compareTo(threshold) > 0;
     }
 
     private static String getPercent(MethodInfo methodInfo, BigDecimal totalCount, DecimalFormat decimalFormat) {

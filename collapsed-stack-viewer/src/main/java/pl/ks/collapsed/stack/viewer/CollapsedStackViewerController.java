@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
@@ -59,13 +60,16 @@ class CollapsedStackViewerController {
     }
 
     @PostMapping("/upload")
-    String upload(Model model, @RequestParam("file") MultipartFile file) throws Exception {
+    String upload(Model model,
+                  @RequestParam("file") MultipartFile file,
+                  @RequestParam("totalTimeThreshold") BigDecimal totalTimeThreshold,
+                  @RequestParam("selfTimeThreshold") BigDecimal selfTimeThreshold) throws Exception {
         String originalFilename = file.getOriginalFilename();
         InputStream inputStream = StorageUtils.createCopy(TempFileUtils.TEMP_DIR, originalFilename, file.getInputStream());
         String uncompressedFileName = "collapsed-stack-" + UUID.randomUUID().toString() + ".log";
         IOUtils.copy(inputStream, new FileOutputStream(TempFileUtils.TEMP_DIR + uncompressedFileName));
         model.addAttribute("welcomePage", WelcomePage.builder()
-                .pages(collapsedStackPageCreator.generatePages(uncompressedFileName, originalFilename))
+                .pages(collapsedStackPageCreator.generatePages(uncompressedFileName, totalTimeThreshold, selfTimeThreshold))
                 .build());
         return "welcome";
     }

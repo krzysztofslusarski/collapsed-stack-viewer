@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,13 +39,13 @@ import pl.ks.profiling.io.TempFileUtils;
 @Slf4j
 @RequiredArgsConstructor
 class CollapsedStackPageCreator {
-    List<Page> generatePages(String collapsedStackFile, String originalFileName) {
+    List<Page> generatePages(String collapsedStackFile, BigDecimal totalTimeThreshold, BigDecimal selfTimeThreshold) {
         CollapsedStackInfo collapsedStackInfo = parse(collapsedStackFile);
 
         List<PageCreator> pageCreators = List.of(
                 new FlameGraphsCreator(collapsedStackFile),
-                new TotalTimeCreator(collapsedStackInfo, originalFileName, collapsedStackFile),
-                new SelfTimeCreator(collapsedStackInfo, originalFileName, collapsedStackFile)
+                new TotalTimeCreator(collapsedStackInfo, collapsedStackFile, totalTimeThreshold),
+                new SelfTimeCreator(collapsedStackInfo, collapsedStackFile, selfTimeThreshold)
         );
 
         return pageCreators.stream()
