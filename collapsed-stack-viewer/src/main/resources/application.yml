@@ -25,4 +25,4 @@ server:
 
 external:
   flame-graph:
-    path: /home/pasq/Aplikacje/FlameGraph
+    path: .
