@@ -15,13 +15,21 @@
  */
 package pl.ks.flame.graph;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 
-@Configuration
-public class ExternalFlameGraphConfiguration {
-    @Bean
-    FlameGraphExecutor externalFlameGraphExecutor() {
-        return new FlameGraphExecutor();
+@RequiredArgsConstructor
+public class FlameGraphExecutor {
+    @SneakyThrows
+    public void generateFlameGraphHtml5(String inputFile, String outputFile, String title, boolean reversed, boolean hotspot) {
+        String[] args;
+        if (reversed) {
+            args = new String[]{"--reverse", "--minwidth=1900", inputFile, outputFile};
+        } else {
+            args = new String[]{"--minwidth=1900", inputFile, outputFile};
+        }
+        FlameGraph flameGraph = new FlameGraph(args);
+        flameGraph.parse();
+        flameGraph.dump();
     }
 }

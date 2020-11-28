@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import pl.ks.flame.graph.ExternalFlameGraphExecutor;
+import pl.ks.flame.graph.FlameGraphExecutor;
 import pl.ks.profiling.io.StorageUtils;
 import pl.ks.profiling.io.TempFileUtils;
 import pl.ks.profiling.web.commons.WelcomePage;
@@ -47,7 +47,7 @@ import pl.ks.profiling.web.commons.WelcomePage;
 @RequiredArgsConstructor
 class CollapsedStackViewerController {
     private final CollapsedStackPageCreator collapsedStackPageCreator;
-    private final ExternalFlameGraphExecutor externalFlameGraphExecutor;
+    private final FlameGraphExecutor flameGraphExecutor;
     private final CollapsedStackComparePageCreator collapsedStackComparePageCreator;
 
     @GetMapping("/")
@@ -97,7 +97,7 @@ class CollapsedStackViewerController {
         return "welcome";
     }
 
-    @GetMapping(value = "/image/{name}", produces = "image/svg+xml")
+    @GetMapping(value = "/image/{name}", produces = "text/html")
     @SneakyThrows
     @ResponseBody
     byte[] getImage(@PathVariable("name") String name) {
@@ -105,25 +105,25 @@ class CollapsedStackViewerController {
     }
 
 
-    @GetMapping(value = "/flame-graph", produces = "image/svg+xml")
+    @GetMapping(value = "/flame-graph", produces = "text/html")
     @ResponseBody
     byte[] getFlameGraph(@RequestParam("collapsed") String collapsed) throws Exception {
         String collapsedFilePath = TempFileUtils.getFilePath(collapsed);
-        String outputSvgFilePath = TempFileUtils.getFilePath(collapsed + ".svg");
-        externalFlameGraphExecutor.generateFlameGraph(collapsedFilePath, outputSvgFilePath, "Flame graph", false, false);
+        String outputHtmlFilePath = TempFileUtils.getFilePath(collapsed + ".html");
+        flameGraphExecutor.generateFlameGraphHtml5(collapsedFilePath, outputHtmlFilePath, "Flame graph", false, false);
         byte[] response = null;
-        try (InputStream inputStream = new FileInputStream(outputSvgFilePath);) {
+        try (InputStream inputStream = new FileInputStream(outputHtmlFilePath);) {
             response = IOUtils.toByteArray(inputStream);
         }
-        Files.delete(Paths.get(outputSvgFilePath));
+        Files.delete(Paths.get(outputHtmlFilePath));
         return response;
     }
 
-    @GetMapping(value = "/flame-graph-no-thread", produces = "image/svg+xml")
+    @GetMapping(value = "/flame-graph-no-thread", produces = "text/html")
     @ResponseBody
     byte[] getFlameGraphNoThread(@RequestParam("collapsed") String collapsed) throws Exception {
         String collapsedFilepath = TempFileUtils.getFilePath(collapsed);
-        String outputSvgFilePath = TempFileUtils.getFilePath(collapsed + ".no-thread.svg");
+        String outputHtmlFilePath = TempFileUtils.getFilePath(collapsed + ".no-thread.html");
         String outputCollapsedFilePath = TempFileUtils.getFilePath(collapsed + "-no-thread.txt");
 
         try (InputStream inputStream = new FileInputStream(collapsedFilepath);
@@ -137,22 +137,22 @@ class CollapsedStackViewerController {
             }
         }
 
-        externalFlameGraphExecutor.generateFlameGraph(outputCollapsedFilePath, outputSvgFilePath, "Flame graph - no thread division", false, false);
+        flameGraphExecutor.generateFlameGraphHtml5(outputCollapsedFilePath, outputHtmlFilePath, "Flame graph - no thread division", false, false);
         byte[] response = null;
-        try (InputStream inputStream = new FileInputStream(outputSvgFilePath);) {
+        try (InputStream inputStream = new FileInputStream(outputHtmlFilePath);) {
             response = IOUtils.toByteArray(inputStream);
         }
-        Files.delete(Paths.get(outputSvgFilePath));
+        Files.delete(Paths.get(outputHtmlFilePath));
         Files.delete(Paths.get(outputCollapsedFilePath));
         return response;
     }
 
-    @GetMapping(value = "/flame-graph-hotspot-limited", produces = "image/svg+xml")
+    @GetMapping(value = "/flame-graph-hotspot-limited", produces = "text/html")
     @ResponseBody
     byte[] getFlameGraphHotspotLimited(@RequestParam("limit") int limit, @RequestParam("collapsed") String collapsed) throws Exception {
         UUID newUuid = UUID.randomUUID();
         String outputCollapsedFilePath = TempFileUtils.getFilePath(newUuid + "-method.txt");
-        String outputSvgFilePath = TempFileUtils.getFilePath(newUuid + "-method.svg");
+        String outputHtmlFilePath = TempFileUtils.getFilePath(newUuid + "-method.html");
         try (InputStream inputStream = new FileInputStream(TempFileUtils.getFilePath(collapsed));
              OutputStream fromOutStream = new FileOutputStream(outputCollapsedFilePath);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -179,37 +179,37 @@ class CollapsedStackViewerController {
             }
         }
 
-        externalFlameGraphExecutor.generateFlameGraph(outputCollapsedFilePath, outputSvgFilePath, "Flame graph - hotspot", true, true);
+        flameGraphExecutor.generateFlameGraphHtml5(outputCollapsedFilePath, outputHtmlFilePath, "Flame graph - hotspot", true, true);
         byte[] response = null;
-        try (InputStream inputStream = new FileInputStream(outputSvgFilePath);) {
+        try (InputStream inputStream = new FileInputStream(outputHtmlFilePath);) {
             response = IOUtils.toByteArray(inputStream);
         }
-        Files.delete(Paths.get(outputSvgFilePath));
+        Files.delete(Paths.get(outputHtmlFilePath));
         Files.delete(Paths.get(outputCollapsedFilePath));
         return response;
     }
 
-    @GetMapping(value = "/flame-graph-hotspot", produces = "image/svg+xml")
+    @GetMapping(value = "/flame-graph-hotspot", produces = "text/html")
     @ResponseBody
     byte[] getFlameGraphHotspot(@RequestParam("collapsed") String collapsed) throws Exception {
         String collapsedFileName = TempFileUtils.getFilePath(collapsed);
-        String outputSvgFilePath = TempFileUtils.getFilePath(collapsed + ".hotspot.svg");
-        externalFlameGraphExecutor.generateFlameGraph(collapsedFileName, outputSvgFilePath, "Flame graph - hotspot", true, true);
+        String outputHtmlFilePath = TempFileUtils.getFilePath(collapsed + ".hotspot.html");
+        flameGraphExecutor.generateFlameGraphHtml5(collapsedFileName, outputHtmlFilePath, "Flame graph - hotspot", true, true);
         byte[] response = null;
-        try (InputStream inputStream = new FileInputStream(outputSvgFilePath);) {
+        try (InputStream inputStream = new FileInputStream(outputHtmlFilePath);) {
             response = IOUtils.toByteArray(inputStream);
         }
-        Files.delete(Paths.get(outputSvgFilePath));
+        Files.delete(Paths.get(outputHtmlFilePath));
         return response;
     }
 
 
-    @GetMapping(value = "/from-method", produces = "image/svg+xml")
+    @GetMapping(value = "/from-method", produces = "text/html")
     @ResponseBody
     byte[] fromMethod(@RequestParam("collapsed") String collapsed, @RequestParam("method") String method) throws Exception {
         UUID newUuid = UUID.randomUUID();
         String outputCollapsedFilePath = TempFileUtils.getFilePath(newUuid + "-method.txt");
-        String outputSvgFilePath = TempFileUtils.getFilePath(newUuid + "-method.svg");
+        String outputHtmlFilePath = TempFileUtils.getFilePath(newUuid + "-method.html");
         try (InputStream inputStream = new FileInputStream(TempFileUtils.getFilePath(collapsed));
              OutputStream fromOutStream = new FileOutputStream(outputCollapsedFilePath);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -231,22 +231,22 @@ class CollapsedStackViewerController {
                 fromWriter.newLine();
             }
         }
-        externalFlameGraphExecutor.generateFlameGraph(outputCollapsedFilePath, outputSvgFilePath, "Callee", false, false);
+        flameGraphExecutor.generateFlameGraphHtml5(outputCollapsedFilePath, outputHtmlFilePath, "Callee", false, false);
         byte[] response = null;
-        try (InputStream inputStream = new FileInputStream(outputSvgFilePath);) {
+        try (InputStream inputStream = new FileInputStream(outputHtmlFilePath);) {
             response = IOUtils.toByteArray(inputStream);
         }
-        Files.delete(Paths.get(outputSvgFilePath));
+        Files.delete(Paths.get(outputHtmlFilePath));
         Files.delete(Paths.get(outputCollapsedFilePath));
         return response;
     }
 
-    @GetMapping(value = "/to-method", produces = "image/svg+xml")
+    @GetMapping(value = "/to-method", produces = "text/html")
     @ResponseBody
     byte[] toMethod(@RequestParam("collapsed") String collapsed, @RequestParam("method") String method) throws Exception {
         UUID newUuid = UUID.randomUUID();
         String outputCollapsedFilePath = TempFileUtils.getFilePath(newUuid + "-method.txt");
-        String outputSvgFilePath = TempFileUtils.getFilePath(newUuid + "-method.svg");
+        String outputHtmlFilePath = TempFileUtils.getFilePath(newUuid + "-method.html");
         try (InputStream inputStream = new FileInputStream(TempFileUtils.getFilePath(collapsed));
              OutputStream fromOutStream = new FileOutputStream(outputCollapsedFilePath);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -263,26 +263,19 @@ class CollapsedStackViewerController {
                 String toStack = stack.substring(0, pos + method.length());
                 String num = line.substring(delimiterChar + 1);
 
-                String[] splittedStack = toStack.split(";");
-                for (int i = splittedStack.length; i > 0; i--) {
-                    String frame = splittedStack[i - 1];
-                    toWriter.write(frame);
-                    if (i != 1) {
-                        toWriter.write(";");
-                    }
-                }
+                toWriter.write(toStack);
                 toWriter.write(" ");
                 toWriter.write(num);
                 toWriter.newLine();
             }
         }
-        externalFlameGraphExecutor.generateFlameGraph(outputCollapsedFilePath, outputSvgFilePath, "Callers", true, false);
+        flameGraphExecutor.generateFlameGraphHtml5(outputCollapsedFilePath, outputHtmlFilePath, "Callers", true, false);
         byte[] response = null;
-        try (InputStream inputStream = new FileInputStream(outputSvgFilePath);) {
+        try (InputStream inputStream = new FileInputStream(outputHtmlFilePath);) {
             response = IOUtils.toByteArray(inputStream);
         }
         Files.delete(Paths.get(outputCollapsedFilePath));
-        Files.delete(Paths.get(outputSvgFilePath));
+        Files.delete(Paths.get(outputHtmlFilePath));
         return response;
     }
 }
