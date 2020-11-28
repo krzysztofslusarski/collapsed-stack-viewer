@@ -3,15 +3,12 @@ Viewer for collapsed stack output of profiles. Dedicated to async-profiler.
 
 ## How to install - from binaries
 Simply download latest release from `https://github.com/krzysztofslusarski/collapsed-stack-viewer/releases`.
-Copy your collapsed-stack-viewer.jar to FlameGraph directory.
 
 ## How to install - from sources
 ```shell script
 git clone --depth 1 https://github.com/krzysztofslusarski/collapsed-stack-viewer.git
-git clone --depth 1 https://github.com/brendangregg/FlameGraph.git
 cd collapsed-stack-viewer/
 mvn clean package
-cp collapsed-stack-viewer/target/collapsed-stack-viewer.jar ../FlameGraph/
 ```
 
 JAVA_HOME should point to JDK 11.
@@ -27,10 +24,6 @@ Viewer is Spring Boot application, you can create `application.yml` with:
 ```yaml
 server:
   port: 8079 
-
-external:
-  flame-graph:
-    path: /home/pasq/path_to_flama_graph_directory
 ```
 
 ## Example usage od async-profiler
@@ -44,9 +37,6 @@ external:
 * `-o collapsed` - as name suggest, this is collapsed stack viewer, so this is mandatory output
 * `-f output.txt ` - output file
 * `<pid>` - pid of your JVM
-
-## Required 3rd party software
-* FlameGraph - https://github.com/brendangregg/FlameGraph
 
 ## Features of collapsed-stack-viewer
 ### Analysis of 1 file
