@@ -43,7 +43,7 @@ class CollapsedStackPageCreator {
         CollapsedStackInfo collapsedStackInfo = parse(collapsedStackFile);
 
         List<PageCreator> pageCreators = List.of(
-                new FlameGraphsCreator(collapsedStackFile),
+                new FlameGraphsCreator(collapsedStackFile, "Flame graphs"),
                 new TotalTimeCreator(collapsedStackInfo, collapsedStackFile, totalTimeThreshold),
                 new SelfTimeCreator(collapsedStackInfo, collapsedStackFile, selfTimeThreshold)
         );

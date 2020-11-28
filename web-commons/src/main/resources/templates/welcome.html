@@ -31,7 +31,7 @@
 <div class="container-fluid">
 
     <div class="row">
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+        <nav class="col-md-1 d-none d-md-block bg-light sidebar">
             <div class="sidebar-sticky">
                 <ul class="nav flex-column">
                     <li class="nav-item">
@@ -72,7 +72,7 @@
                 </ul>
             </div>
         </nav>
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+        <main role="main" class="col-md-11 ml-sm-auto col-lg-11 pt-3 px-4">
             <div class="starter-template">
                 <div th:each="page, pagesStatus: ${welcomePage.pages}" th:class="'subpage page-' + ${pagesStatus.index}" th:inline="text">
                     <h2>[[${page.fullName}]]</h2>
@@ -194,11 +194,11 @@
                         </div>
                         <div th:if="${content.type.name() == 'TABLE_WITH_LINKS'}">
                             <input th:if="${content.filteredColumn != null}" type="text" class="search-input"
-                                   th:data-table-id="${'table-' + pagesStatus.index}"
+                                   th:data-table-id="${'table-' + pagesStatus.index + '-' + contentStatus.index}"
                                    th:data-column="${content.filteredColumn}"
                                    onkeyup="filterTable(this)" placeholder="Search ..."/>
 
-                            <table th:id="${'table-' + pagesStatus.index}" class="table table-striped table-bordered table-sm big-font" th:style="'width: ' + ${content.screenWidth} + ';'">
+                            <table th:id="${'table-' + pagesStatus.index + '-' + contentStatus.index}" class="table table-striped table-bordered table-sm big-font" th:style="'width: ' + ${content.screenWidth} + ';'">
                                 <thead th:if="${content.header != null}">
                                 <tr>
                                     <th th:each="column, columnStatus: ${content.header}" th:inline="text">

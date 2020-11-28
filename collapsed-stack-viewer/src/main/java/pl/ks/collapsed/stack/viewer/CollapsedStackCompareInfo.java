@@ -15,23 +15,14 @@
  */
 package pl.ks.collapsed.stack.viewer;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import pl.ks.flame.graph.ExternalFlameGraphConfiguration;
+import java.util.Collection;
+import lombok.Builder;
+import lombok.Getter;
 
-@Import({
-        ExternalFlameGraphConfiguration.class
-})
-@Configuration
-class CollapsedStackViewerApplicationConfiguration {
-    @Bean
-    CollapsedStackPageCreator collapsedStackPageCreator() {
-        return new CollapsedStackPageCreator();
-    }
-
-    @Bean
-    CollapsedStackComparePageCreator collapsedStackComparePageCreator() {
-        return new CollapsedStackComparePageCreator();
-    }
+@Getter
+@Builder
+public class CollapsedStackCompareInfo {
+    private Collection<MethodCompareInfo> methods;
+    private long totalCount1;
+    private long totalCount2;
 }

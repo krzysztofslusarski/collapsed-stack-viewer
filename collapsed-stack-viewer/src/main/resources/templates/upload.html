@@ -44,6 +44,17 @@
                 Self time threshold (do not show method with self time less then): <input type="text" name="selfTimeThreshold" value="0.0001"/>
             </p>
         </form>
+        <h2>Compare two files ...</h2>
+        <form method="POST" enctype="multipart/form-data" action="/compare" target="_blank">
+            <p class="lead">First file to upload: <input type="file" name="file"/></p>
+            <p class="lead">Second file to upload: <input type="file" name="file2"/><input type="submit" value="Submit"/></p>
+            <p>
+                Total time threshold (do not show method with total time less then): <input type="text" name="totalTimeThreshold" value="0.005"/>
+            </p>
+            <p>
+                Self time threshold (do not show method with self time less then): <input type="text" name="selfTimeThreshold" value="0.0001"/>
+            </p>
+        </form>
         <p class="lead">
             Compress logs <span class="font-weight-bold">(*.zip, *.gz, *.xz, *.7z)</span> for fast uploads.
         </p>

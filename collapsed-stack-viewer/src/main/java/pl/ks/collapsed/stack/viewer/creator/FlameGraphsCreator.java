@@ -26,12 +26,13 @@ import pl.ks.profiling.gui.commons.TableWithLinks;
 @RequiredArgsConstructor
 public class FlameGraphsCreator implements PageCreator {
     private final String collapsedStackFile;
+    private final String chartName;
 
     @Override
     public Page create() {
         return Page.builder()
-                .fullName("Flame graphs")
-                .menuName("Flame graphs")
+                .fullName(chartName)
+                .menuName(chartName)
                 .icon(Page.Icon.STATS)
                 .pageContents(List.of(
                         TableWithLinks.builder()

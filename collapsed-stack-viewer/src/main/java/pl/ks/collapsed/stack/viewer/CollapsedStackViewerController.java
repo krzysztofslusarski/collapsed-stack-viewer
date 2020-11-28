@@ -48,6 +48,7 @@ import pl.ks.profiling.web.commons.WelcomePage;
 class CollapsedStackViewerController {
     private final CollapsedStackPageCreator collapsedStackPageCreator;
     private final ExternalFlameGraphExecutor externalFlameGraphExecutor;
+    private final CollapsedStackComparePageCreator collapsedStackComparePageCreator;
 
     @GetMapping("/")
     String defualt() {
@@ -70,6 +71,28 @@ class CollapsedStackViewerController {
         IOUtils.copy(inputStream, new FileOutputStream(TempFileUtils.TEMP_DIR + uncompressedFileName));
         model.addAttribute("welcomePage", WelcomePage.builder()
                 .pages(collapsedStackPageCreator.generatePages(uncompressedFileName, totalTimeThreshold, selfTimeThreshold))
+                .build());
+        return "welcome";
+    }
+
+    @PostMapping("/compare")
+    String compare(Model model,
+                  @RequestParam("file") MultipartFile file,
+                  @RequestParam("file2") MultipartFile file2,
+                  @RequestParam("totalTimeThreshold") BigDecimal totalTimeThreshold,
+                  @RequestParam("selfTimeThreshold") BigDecimal selfTimeThreshold) throws Exception {
+        String originalFilename1 = file.getOriginalFilename();
+        String originalFilename2 = file2.getOriginalFilename();
+        InputStream inputStream1 = StorageUtils.createCopy(TempFileUtils.TEMP_DIR, originalFilename1, file.getInputStream());
+        InputStream inputStream2 = StorageUtils.createCopy(TempFileUtils.TEMP_DIR, originalFilename2, file2.getInputStream());
+        String uncompressedFileName1 = "collapsed-stack-" + UUID.randomUUID().toString() + ".log";
+        String uncompressedFileName2 = "collapsed-stack-" + UUID.randomUUID().toString() + ".log";
+        IOUtils.copy(inputStream1, new FileOutputStream(TempFileUtils.TEMP_DIR + uncompressedFileName1));
+        IOUtils.copy(inputStream2, new FileOutputStream(TempFileUtils.TEMP_DIR + uncompressedFileName2));
+
+
+        model.addAttribute("welcomePage", WelcomePage.builder()
+                .pages(collapsedStackComparePageCreator.generatePages(uncompressedFileName1, uncompressedFileName2, totalTimeThreshold, selfTimeThreshold))
                 .build());
         return "welcome";
     }
