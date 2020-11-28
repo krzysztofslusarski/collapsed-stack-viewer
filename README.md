@@ -49,7 +49,8 @@ external:
 * FlameGraph - https://github.com/brendangregg/FlameGraph
 
 ## Features of collapsed-stack-viewer
-### Flame graphs
+### Analysis of 1 file
+#### Flame graphs
 ![Flame graphs](images/flame-graphs.png)
 
 Viewer can generate flame graphs:
@@ -58,17 +59,17 @@ Viewer can generate flame graphs:
 * **Hotspot flame graph** - flame graph that is inverted and reversed, presenting hotspots from collapsed stack file:
   *  **depth = 10/20/30** - shortened graph with smaller stacks
 
-### Method total time
+#### Method total time
 ![Total time](images/total-time.png)
 
 Total time is number of stacks, that method was anywhere on the stack. Method name can be filtered.    
 
-### Method self time
+#### Method self time
 ![Self time](images/self-time.png)
 
 Self time is number of stacks, that method was at the end of the stack. Method name can be filtered.      
 
-### Callee and callers flame graphs for methods
+#### Callee and callers flame graphs for methods
 ![Callee](images/callee.svg)
 
 Callee graph shows what method is actually doing. This graph is aggregated, so it shows every usage of method.
@@ -76,3 +77,13 @@ Callee graph shows what method is actually doing. This graph is aggregated, so i
 ![Callee](images/callers.svg)
 
 Callers graph shows what which method used profiled method. This graph is aggregated, so it shows every usage of method.
+
+### Compare 2 files
+
+Viewer can compare two files, it will present 
+* Method total/self time tables:
+  * Methods not found in the 1st file
+  * Methods not found in the 2nd file
+  * Methods that used more resources in the 1st file then in the 2nd file
+  * Methods that used more resources in the 2nd file then in the 1st file
+  * Methods that used the same amount of resources
