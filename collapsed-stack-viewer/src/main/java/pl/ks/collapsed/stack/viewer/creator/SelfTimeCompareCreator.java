@@ -15,7 +15,13 @@
  */
 package pl.ks.collapsed.stack.viewer.creator;
 
-import static pl.ks.profiling.gui.commons.TableWithLinks.Link.of;
+import lombok.RequiredArgsConstructor;
+import pl.ks.collapsed.stack.viewer.CollapsedStackCompareInfo;
+import pl.ks.collapsed.stack.viewer.MethodCompareInfo;
+import pl.ks.collapsed.stack.viewer.pages.Page;
+import pl.ks.collapsed.stack.viewer.pages.PageCreator;
+import pl.ks.collapsed.stack.viewer.pages.PageCreatorHelper;
+import pl.ks.collapsed.stack.viewer.pages.TableWithLinks;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,13 +32,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import pl.ks.collapsed.stack.viewer.CollapsedStackCompareInfo;
-import pl.ks.collapsed.stack.viewer.MethodCompareInfo;
-import pl.ks.profiling.gui.commons.Page;
-import pl.ks.profiling.gui.commons.PageCreator;
-import pl.ks.profiling.gui.commons.PageCreatorHelper;
-import pl.ks.profiling.gui.commons.TableWithLinks;
+
+import static pl.ks.collapsed.stack.viewer.pages.TableWithLinks.Link.of;
 
 @RequiredArgsConstructor
 public class SelfTimeCompareCreator implements PageCreator {

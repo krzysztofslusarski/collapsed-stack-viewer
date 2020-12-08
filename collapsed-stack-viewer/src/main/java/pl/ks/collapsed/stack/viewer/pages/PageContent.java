@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pl.ks.profiling.web.commons;
+package pl.ks.collapsed.stack.viewer.pages;
 
-import java.util.List;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Value;
-import pl.ks.profiling.gui.commons.Page;
+public interface PageContent {
+    ContentType getType();
+    String getTitle();
+    String getInfo();
 
-@Value
-@Builder
-@Getter
-public class WelcomePage {
-    private List<Page> pages;
+    enum ContentType {
+        TABLE_WITH_LINKS,
+        PROFILING_RESULTS,
+    }
 }

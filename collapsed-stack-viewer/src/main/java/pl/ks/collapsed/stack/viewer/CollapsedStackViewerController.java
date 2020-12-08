@@ -15,33 +15,23 @@
  */
 package pl.ks.collapsed.stack.viewer;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import pl.ks.collapsed.stack.viewer.pages.WelcomePage;
 import pl.ks.flame.graph.FlameGraphExecutor;
 import pl.ks.profiling.io.StorageUtils;
 import pl.ks.profiling.io.TempFileUtils;
-import pl.ks.profiling.web.commons.WelcomePage;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
@@ -94,7 +84,7 @@ class CollapsedStackViewerController {
         model.addAttribute("welcomePage", WelcomePage.builder()
                 .pages(collapsedStackComparePageCreator.generatePages(uncompressedFileName1, uncompressedFileName2, totalTimeThreshold, selfTimeThreshold))
                 .build());
-        return "welcome";
+        return "compare";
     }
 
     @GetMapping(value = "/image/{name}", produces = "text/html")
@@ -241,6 +231,43 @@ class CollapsedStackViewerController {
         return response;
     }
 
+    @GetMapping(value = "/from-method-root", produces = "text/html")
+    String fromMethodRoot(Model model,
+                          @RequestParam("collapsed") String collapsed,
+                          @RequestParam("method") String method,
+                          @RequestParam("totalTimeThreshold") BigDecimal totalTimeThreshold,
+                          @RequestParam("selfTimeThreshold") BigDecimal selfTimeThreshold) throws Exception {
+        UUID newUuid = UUID.randomUUID();
+        String fileName = newUuid + "from--method-root.txt";
+        String outputCollapsedFilePath = TempFileUtils.getFilePath(fileName);
+        try (InputStream inputStream = new FileInputStream(TempFileUtils.getFilePath(collapsed));
+             OutputStream fromOutStream = new FileOutputStream(outputCollapsedFilePath);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+             BufferedWriter fromWriter = new BufferedWriter(new OutputStreamWriter(fromOutStream));
+        ) {
+            while (reader.ready()) {
+                String line = reader.readLine();
+                int delimiterChar = line.lastIndexOf(" ");
+                String stack = line.substring(0, delimiterChar);
+                int pos = stack.indexOf(method);
+                if (pos < 0) {
+                    continue;
+                }
+                String fromStack = stack.substring(pos);
+                String num = line.substring(delimiterChar + 1);
+                fromWriter.write(fromStack);
+                fromWriter.write(" ");
+                fromWriter.write(num);
+                fromWriter.newLine();
+            }
+        }
+        model.addAttribute("welcomePage", WelcomePage.builder()
+                .pages(collapsedStackPageCreator.generatePages(fileName, totalTimeThreshold, selfTimeThreshold))
+                .build());
+        return "welcome";
+    }
+
+
     @GetMapping(value = "/to-method", produces = "text/html")
     @ResponseBody
     byte[] toMethod(@RequestParam("collapsed") String collapsed, @RequestParam("method") String method) throws Exception {
@@ -278,4 +305,42 @@ class CollapsedStackViewerController {
         Files.delete(Paths.get(outputHtmlFilePath));
         return response;
     }
+
+    @GetMapping(value = "/to-method-root", produces = "text/html")
+    String toMethodRoot(Model model,
+                          @RequestParam("collapsed") String collapsed,
+                          @RequestParam("method") String method,
+                          @RequestParam("totalTimeThreshold") BigDecimal totalTimeThreshold,
+                          @RequestParam("selfTimeThreshold") BigDecimal selfTimeThreshold) throws Exception {
+        UUID newUuid = UUID.randomUUID();
+        String fileName = newUuid + "-to-method-root.txt";
+        String outputCollapsedFilePath = TempFileUtils.getFilePath(fileName);
+        try (InputStream inputStream = new FileInputStream(TempFileUtils.getFilePath(collapsed));
+             OutputStream fromOutStream = new FileOutputStream(outputCollapsedFilePath);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+             BufferedWriter toWriter = new BufferedWriter(new OutputStreamWriter(fromOutStream));
+        ) {
+            while (reader.ready()) {
+                String line = reader.readLine();
+                int delimiterChar = line.lastIndexOf(" ");
+                String stack = line.substring(0, delimiterChar);
+                int pos = stack.indexOf(method);
+                if (pos < 0) {
+                    continue;
+                }
+                String toStack = stack.substring(0, pos + method.length());
+                String num = line.substring(delimiterChar + 1);
+
+                toWriter.write(toStack);
+                toWriter.write(" ");
+                toWriter.write(num);
+                toWriter.newLine();
+            }
+        }
+        model.addAttribute("welcomePage", WelcomePage.builder()
+                .pages(collapsedStackPageCreator.generatePages(fileName, totalTimeThreshold, selfTimeThreshold))
+                .build());
+        return "welcome";
+    }
+
 }

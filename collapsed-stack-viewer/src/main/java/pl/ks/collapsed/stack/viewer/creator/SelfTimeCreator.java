@@ -15,7 +15,10 @@
  */
 package pl.ks.collapsed.stack.viewer.creator;
 
-import static pl.ks.profiling.gui.commons.TableWithLinks.Link.of;
+import lombok.RequiredArgsConstructor;
+import pl.ks.collapsed.stack.viewer.CollapsedStackInfo;
+import pl.ks.collapsed.stack.viewer.MethodInfo;
+import pl.ks.collapsed.stack.viewer.pages.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -25,13 +28,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import pl.ks.collapsed.stack.viewer.CollapsedStackInfo;
-import pl.ks.collapsed.stack.viewer.MethodInfo;
-import pl.ks.profiling.gui.commons.Page;
-import pl.ks.profiling.gui.commons.PageCreator;
-import pl.ks.profiling.gui.commons.PageCreatorHelper;
-import pl.ks.profiling.gui.commons.TableWithLinks;
 
 @RequiredArgsConstructor
 public class SelfTimeCreator implements PageCreator {
@@ -39,7 +35,8 @@ public class SelfTimeCreator implements PageCreator {
 
     private final CollapsedStackInfo collapsedStackInfo;
     private final String collapsedStackFileName;
-    private final BigDecimal threshold;
+    private final BigDecimal totalTimeThreshold;
+    private final BigDecimal selfTimeThreshold;
 
     @Override
     public Page create() {
@@ -55,18 +52,22 @@ public class SelfTimeCreator implements PageCreator {
                 .menuName("Method self time")
                 .icon(Page.Icon.STATS)
                 .pageContents(List.of(
-                        TableWithLinks.builder()
-                                .header(List.of("Method", "Self  time %", "No of samples", "Callee flame graph", "Callers flame graph"))
+                        ProfilingResult.builder()
                                 .filteredColumn(0)
-                                .table(methodsToList.stream()
-                                        .map(methodEntry -> List.of(
-                                                of(methodEntry.getName()),
-                                                of(getPercent(methodEntry, totalCount, decimalFormat)),
-                                                of(String.valueOf(methodEntry.getSelfSamples())),
-                                                of(LinkUtils.getFromMethodHref(collapsedStackFileName, methodEntry.getName()), "Callee"),
-                                                of(LinkUtils.getToMethodHref(collapsedStackFileName, methodEntry.getName()), "Callers")
-                                        ))
-                                        .collect(Collectors.toList())
+                                .profilingEntries(
+                                        methodsToList.stream()
+                                                .map(methodEntry -> ProfilingEntry.builder()
+                                                        .methodName(methodEntry.getName())
+                                                        .percent(getPercent(methodEntry, totalCount, decimalFormat))
+                                                        .samples(methodEntry.getSelfSamples())
+                                                        .profilingLinks(ProfilingLinks.builder()
+                                                                .fromMethodFlameGraph(LinkUtils.getFromMethodHref(collapsedStackFileName, methodEntry.getName()))
+                                                                .toMethodFlameGraph(LinkUtils.getToMethodHref(collapsedStackFileName, methodEntry.getName()))
+                                                                .fromMethodRoot(LinkUtils.getFromMethodRootHref(collapsedStackFileName, methodEntry.getName(), totalTimeThreshold, selfTimeThreshold))
+                                                                .toMethodRoot(LinkUtils.getToMethodRootHref(collapsedStackFileName, methodEntry.getName(), totalTimeThreshold, selfTimeThreshold))
+                                                                .build())
+                                                        .build())
+                                                .collect(Collectors.toList())
                                 )
                                 .build()
                 ))
@@ -74,7 +75,7 @@ public class SelfTimeCreator implements PageCreator {
     }
 
     private boolean overThreshold(BigDecimal totalCount, MethodInfo methodInfo) {
-        return new BigDecimal(methodInfo.getSelfSamples()).divide(totalCount, 3, RoundingMode.HALF_EVEN).compareTo(threshold) > 0;
+        return new BigDecimal(methodInfo.getSelfSamples()).divide(totalCount, 3, RoundingMode.HALF_EVEN).compareTo(selfTimeThreshold) > 0;
     }
 
     private static String getPercent(MethodInfo methodInfo, BigDecimal totalCount, DecimalFormat decimalFormat) {

@@ -15,26 +15,22 @@
  */
 package pl.ks.collapsed.stack.viewer;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pl.ks.collapsed.stack.viewer.creator.FlameGraphsCreator;
 import pl.ks.collapsed.stack.viewer.creator.SelfTimeCreator;
 import pl.ks.collapsed.stack.viewer.creator.TotalTimeCreator;
-import pl.ks.profiling.gui.commons.Page;
-import pl.ks.profiling.gui.commons.PageCreator;
+import pl.ks.collapsed.stack.viewer.pages.Page;
+import pl.ks.collapsed.stack.viewer.pages.PageCreator;
 import pl.ks.profiling.io.TempFileUtils;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -44,8 +40,8 @@ class CollapsedStackPageCreator {
 
         List<PageCreator> pageCreators = List.of(
                 new FlameGraphsCreator(collapsedStackFile, "Flame graphs"),
-                new TotalTimeCreator(collapsedStackInfo, collapsedStackFile, totalTimeThreshold),
-                new SelfTimeCreator(collapsedStackInfo, collapsedStackFile, selfTimeThreshold)
+                new TotalTimeCreator(collapsedStackInfo, collapsedStackFile, totalTimeThreshold, selfTimeThreshold),
+                new SelfTimeCreator(collapsedStackInfo, collapsedStackFile, totalTimeThreshold, selfTimeThreshold)
         );
 
         return pageCreators.stream()

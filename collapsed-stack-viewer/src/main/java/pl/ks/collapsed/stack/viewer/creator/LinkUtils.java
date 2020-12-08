@@ -15,9 +15,11 @@
  */
 package pl.ks.collapsed.stack.viewer.creator;
 
+import lombok.experimental.UtilityClass;
+
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import lombok.experimental.UtilityClass;
 
 @UtilityClass
 class LinkUtils {
@@ -41,7 +43,17 @@ class LinkUtils {
         return "/from-method?collapsed=" + collapsed + "&method=" + URLEncoder.encode(methodName, Charset.defaultCharset());
     }
 
+    String getFromMethodRootHref(String collapsed, String methodName, BigDecimal totalTimeThreshold, BigDecimal selfTimeThreshold) {
+        return "/from-method-root?collapsed=" + collapsed + "&method=" + URLEncoder.encode(methodName, Charset.defaultCharset()) +
+                "&totalTimeThreshold=" + totalTimeThreshold + "&selfTimeThreshold=" + selfTimeThreshold;
+    }
+
     String getToMethodHref(String collapsed, String methodName) {
         return "/to-method?collapsed=" + collapsed + "&method=" + URLEncoder.encode(methodName, Charset.defaultCharset());
+    }
+
+    String getToMethodRootHref(String collapsed, String methodName, BigDecimal totalTimeThreshold, BigDecimal selfTimeThreshold) {
+        return "/to-method-root?collapsed=" + collapsed + "&method=" + URLEncoder.encode(methodName, Charset.defaultCharset()) +
+                "&totalTimeThreshold=" + totalTimeThreshold + "&selfTimeThreshold=" + selfTimeThreshold;
     }
 }

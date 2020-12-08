@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pl.ks.profiling.gui.commons;
+package pl.ks.collapsed.stack.viewer.pages;
 
 public interface PageCreator {
     Page create();

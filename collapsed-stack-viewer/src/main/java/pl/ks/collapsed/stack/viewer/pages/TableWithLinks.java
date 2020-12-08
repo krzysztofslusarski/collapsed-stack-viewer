@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pl.ks.profiling.gui.commons;
+package pl.ks.collapsed.stack.viewer.pages;
 
-import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
+
+import java.util.List;
 
 @Getter
 @Value

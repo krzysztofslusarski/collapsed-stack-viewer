@@ -42,16 +42,6 @@
         </dependency>
         <dependency>
             <groupId>pl.ks.profiling</groupId>
-            <artifactId>gui-commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>pl.ks.profiling</groupId>
-            <artifactId>web-commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>pl.ks.profiling</groupId>
             <artifactId>io-utils</artifactId>
             <version>${project.version}</version>
         </dependency>

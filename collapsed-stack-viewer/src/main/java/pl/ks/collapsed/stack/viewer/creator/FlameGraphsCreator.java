@@ -15,13 +15,14 @@
  */
 package pl.ks.collapsed.stack.viewer.creator;
 
-import static pl.ks.profiling.gui.commons.TableWithLinks.Link.of;
+import lombok.RequiredArgsConstructor;
+import pl.ks.collapsed.stack.viewer.pages.Page;
+import pl.ks.collapsed.stack.viewer.pages.PageCreator;
+import pl.ks.collapsed.stack.viewer.pages.TableWithLinks;
 
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import pl.ks.profiling.gui.commons.Page;
-import pl.ks.profiling.gui.commons.PageCreator;
-import pl.ks.profiling.gui.commons.TableWithLinks;
+
+import static pl.ks.collapsed.stack.viewer.pages.TableWithLinks.Link.of;
 
 @RequiredArgsConstructor
 public class FlameGraphsCreator implements PageCreator {

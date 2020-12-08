@@ -13,22 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pl.ks.profiling.gui.commons;
+package pl.ks.collapsed.stack.viewer.pages;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
 
+import java.util.List;
+
 @Getter
 @Value
 @Builder
-public class Image implements PageContent {
-    private String title;
+public class Page {
+    private String menuName;
+    private String fullName;
+    private Icon icon;
     private String info;
-    private String name;
-    private boolean linkOnly;
+    List<PageContent> pageContents;
 
-    public ContentType getType() {
-        return ContentType.IMAGE;
+    public enum Icon {
+        CHART,
+        STATS,
+        HOME
     }
 }
