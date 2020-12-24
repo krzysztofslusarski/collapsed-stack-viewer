@@ -15,23 +15,35 @@
  */
 package pl.ks.collapsed.stack.viewer;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import pl.ks.collapsed.stack.viewer.pages.WelcomePage;
 import pl.ks.flame.graph.FlameGraphExecutor;
 import pl.ks.profiling.io.StorageUtils;
 import pl.ks.profiling.io.TempFileUtils;
-
-import java.io.*;
-import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
@@ -53,12 +65,18 @@ class CollapsedStackViewerController {
     @PostMapping("/upload")
     String upload(Model model,
                   @RequestParam("file") MultipartFile file,
+                  @RequestParam("filter") String filter,
                   @RequestParam("totalTimeThreshold") BigDecimal totalTimeThreshold,
                   @RequestParam("selfTimeThreshold") BigDecimal selfTimeThreshold) throws Exception {
         String originalFilename = file.getOriginalFilename();
         InputStream inputStream = StorageUtils.createCopy(TempFileUtils.TEMP_DIR, originalFilename, file.getInputStream());
         String uncompressedFileName = "collapsed-stack-" + UUID.randomUUID().toString() + ".log";
-        IOUtils.copy(inputStream, new FileOutputStream(TempFileUtils.TEMP_DIR + uncompressedFileName));
+        if (StringUtils.isEmpty(filter)) {
+            IOUtils.copy(inputStream, new FileOutputStream(TempFileUtils.TEMP_DIR + uncompressedFileName));
+        } else {
+            copyFileWithFilter(filter, inputStream, uncompressedFileName);
+        }
+
         model.addAttribute("welcomePage", WelcomePage.builder()
                 .pages(collapsedStackPageCreator.generatePages(uncompressedFileName, totalTimeThreshold, selfTimeThreshold))
                 .build());
@@ -67,20 +85,24 @@ class CollapsedStackViewerController {
 
     @PostMapping("/compare")
     String compare(Model model,
-                  @RequestParam("file") MultipartFile file,
-                  @RequestParam("file2") MultipartFile file2,
-                  @RequestParam("totalTimeThreshold") BigDecimal totalTimeThreshold,
-                  @RequestParam("selfTimeThreshold") BigDecimal selfTimeThreshold) throws Exception {
+                   @RequestParam("file") MultipartFile file,
+                   @RequestParam("file2") MultipartFile file2,
+                   @RequestParam("filter") String filter,
+                   @RequestParam("totalTimeThreshold") BigDecimal totalTimeThreshold,
+                   @RequestParam("selfTimeThreshold") BigDecimal selfTimeThreshold) throws Exception {
         String originalFilename1 = file.getOriginalFilename();
         String originalFilename2 = file2.getOriginalFilename();
         InputStream inputStream1 = StorageUtils.createCopy(TempFileUtils.TEMP_DIR, originalFilename1, file.getInputStream());
         InputStream inputStream2 = StorageUtils.createCopy(TempFileUtils.TEMP_DIR, originalFilename2, file2.getInputStream());
         String uncompressedFileName1 = "collapsed-stack-" + UUID.randomUUID().toString() + ".log";
         String uncompressedFileName2 = "collapsed-stack-" + UUID.randomUUID().toString() + ".log";
-        IOUtils.copy(inputStream1, new FileOutputStream(TempFileUtils.TEMP_DIR + uncompressedFileName1));
-        IOUtils.copy(inputStream2, new FileOutputStream(TempFileUtils.TEMP_DIR + uncompressedFileName2));
-
-
+        if (StringUtils.isEmpty(filter)) {
+            IOUtils.copy(inputStream1, new FileOutputStream(TempFileUtils.TEMP_DIR + uncompressedFileName1));
+            IOUtils.copy(inputStream2, new FileOutputStream(TempFileUtils.TEMP_DIR + uncompressedFileName2));
+        } else {
+            copyFileWithFilter(filter, inputStream1, uncompressedFileName1);
+            copyFileWithFilter(filter, inputStream2, uncompressedFileName2);
+        }
         model.addAttribute("welcomePage", WelcomePage.builder()
                 .pages(collapsedStackComparePageCreator.generatePages(uncompressedFileName1, uncompressedFileName2, totalTimeThreshold, selfTimeThreshold))
                 .build());
@@ -158,7 +180,7 @@ class CollapsedStackViewerController {
                 for (int i = Math.max(0, splittedStack.length - limit); i < splittedStack.length; i++) {
                     String frame = splittedStack[i];
                     toWriter.write(frame);
-                    if (i != splittedStack.length -1) {
+                    if (i != splittedStack.length - 1) {
                         toWriter.write(";");
                     }
                 }
@@ -308,10 +330,10 @@ class CollapsedStackViewerController {
 
     @GetMapping(value = "/to-method-root", produces = "text/html")
     String toMethodRoot(Model model,
-                          @RequestParam("collapsed") String collapsed,
-                          @RequestParam("method") String method,
-                          @RequestParam("totalTimeThreshold") BigDecimal totalTimeThreshold,
-                          @RequestParam("selfTimeThreshold") BigDecimal selfTimeThreshold) throws Exception {
+                        @RequestParam("collapsed") String collapsed,
+                        @RequestParam("method") String method,
+                        @RequestParam("totalTimeThreshold") BigDecimal totalTimeThreshold,
+                        @RequestParam("selfTimeThreshold") BigDecimal selfTimeThreshold) throws Exception {
         UUID newUuid = UUID.randomUUID();
         String fileName = newUuid + "-to-method-root.txt";
         String outputCollapsedFilePath = TempFileUtils.getFilePath(fileName);
@@ -341,6 +363,23 @@ class CollapsedStackViewerController {
                 .pages(collapsedStackPageCreator.generatePages(fileName, totalTimeThreshold, selfTimeThreshold))
                 .build());
         return "welcome";
+    }
+
+    private void copyFileWithFilter(String filter, InputStream inputStream, String outputFileName) throws IOException {
+        filter = filter.trim();
+        try (OutputStream outputStream = new FileOutputStream(TempFileUtils.TEMP_DIR + outputFileName);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));) {
+            while (reader.ready()) {
+                String line = reader.readLine();
+                if (line.contains(filter)) {
+                    writer.write(line);
+                    writer.newLine();
+                }
+            }
+        } finally {
+            inputStream.close();
+        }
     }
 
 }
