@@ -24,9 +24,9 @@ public class FlameGraphExecutor {
     public void generateFlameGraphHtml5(String inputFile, String outputFile, String title, boolean reversed, boolean hotspot) {
         String[] args;
         if (reversed) {
-            args = new String[]{"--reverse", "--minwidth=1900", inputFile, outputFile};
+            args = new String[]{"--title" , title, "--reverse", inputFile, outputFile};
         } else {
-            args = new String[]{"--minwidth=1900", inputFile, outputFile};
+            args = new String[]{"--title" , title, inputFile, outputFile};
         }
         FlameGraph flameGraph = new FlameGraph(args);
         flameGraph.parse();

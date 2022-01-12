@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -59,7 +59,7 @@ public class FlameGraph {
     }
 
     public void parse() throws IOException {
-        parse(new InputStreamReader(new FileInputStream(input), StandardCharsets.UTF_8));
+        parse(new InputStreamReader(new FileInputStream(input), Charset.defaultCharset()));
     }
 
     public void parse(Reader in) throws IOException {

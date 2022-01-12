@@ -15,6 +15,18 @@
  */
 package pl.ks.collapsed.stack.viewer;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pl.ks.collapsed.stack.viewer.creator.FlameGraphsCreator;
@@ -24,14 +36,6 @@ import pl.ks.collapsed.stack.viewer.pages.Page;
 import pl.ks.collapsed.stack.viewer.pages.PageCreator;
 import pl.ks.profiling.io.TempFileUtils;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
-
 @Slf4j
 @RequiredArgsConstructor
 class CollapsedStackComparePageCreator {
@@ -39,10 +43,10 @@ class CollapsedStackComparePageCreator {
         CollapsedStackCompareInfo collapsedStackInfo = parse(collapsedStackFile1, collapsedStackFile2);
 
         List<PageCreator> pageCreators = List.of(
-                new FlameGraphsCreator(collapsedStackFile1, "Flame graphs - file 1"),
-                new FlameGraphsCreator(collapsedStackFile2, "Flame graphs - file 2"),
-                new TotalTimeCompareCreator(collapsedStackInfo, collapsedStackFile1, collapsedStackFile2, totalTimeThreshold),
-                new SelfTimeCompareCreator(collapsedStackInfo, collapsedStackFile1, collapsedStackFile2, selfTimeThreshold)
+                new FlameGraphsCreator(collapsedStackFile1, "Flame graphs - file 1", "File 1"),
+                new FlameGraphsCreator(collapsedStackFile2, "Flame graphs - file 2", "File 2"),
+                new TotalTimeCompareCreator(collapsedStackInfo, collapsedStackFile1, collapsedStackFile2, totalTimeThreshold, "Compare"),
+                new SelfTimeCompareCreator(collapsedStackInfo, collapsedStackFile1, collapsedStackFile2, selfTimeThreshold, "Compare")
         );
 
         return pageCreators.stream()

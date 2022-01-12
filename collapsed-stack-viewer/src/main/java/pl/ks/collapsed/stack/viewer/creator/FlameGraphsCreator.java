@@ -15,19 +15,19 @@
  */
 package pl.ks.collapsed.stack.viewer.creator;
 
+import static pl.ks.collapsed.stack.viewer.pages.TableWithLinks.Link.of;
+
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import pl.ks.collapsed.stack.viewer.pages.Page;
 import pl.ks.collapsed.stack.viewer.pages.PageCreator;
 import pl.ks.collapsed.stack.viewer.pages.TableWithLinks;
 
-import java.util.List;
-
-import static pl.ks.collapsed.stack.viewer.pages.TableWithLinks.Link.of;
-
 @RequiredArgsConstructor
 public class FlameGraphsCreator implements PageCreator {
     private final String collapsedStackFile;
     private final String chartName;
+    private final String title;
 
     @Override
     public Page create() {
@@ -40,12 +40,12 @@ public class FlameGraphsCreator implements PageCreator {
                                 .header(List.of("Type"))
                                 .table(
                                         List.of(
-                                                List.of(of(LinkUtils.getFlameGraphHref(collapsedStackFile), "Flame graph")),
-                                                List.of(of(LinkUtils.getNoThreadFlameGraphHref(collapsedStackFile), "Flame graph with no thread division")),
-                                                List.of(of(LinkUtils.getHotspotFlameGraphHref(collapsedStackFile), "Hotspot flame graph")),
-                                                List.of(of(LinkUtils.getHotspotLLimitedFlameGraphHref(collapsedStackFile, 10), "Hotspot flame graph - depth = 10")),
-                                                List.of(of(LinkUtils.getHotspotLLimitedFlameGraphHref(collapsedStackFile, 20), "Hotspot flame graph - depth = 20")),
-                                                List.of(of(LinkUtils.getHotspotLLimitedFlameGraphHref(collapsedStackFile, 30), "Hotspot flame graph - depth = 30"))
+                                                List.of(of(LinkUtils.getFlameGraphHref(collapsedStackFile, title), "Flame graph")),
+                                                List.of(of(LinkUtils.getNoThreadFlameGraphHref(collapsedStackFile, title), "Flame graph with no thread division")),
+                                                List.of(of(LinkUtils.getHotspotFlameGraphHref(collapsedStackFile, title), "Hotspot flame graph")),
+                                                List.of(of(LinkUtils.getHotspotLLimitedFlameGraphHref(collapsedStackFile, title, 10), "Hotspot flame graph - depth = 10")),
+                                                List.of(of(LinkUtils.getHotspotLLimitedFlameGraphHref(collapsedStackFile, title, 20), "Hotspot flame graph - depth = 20")),
+                                                List.of(of(LinkUtils.getHotspotLLimitedFlameGraphHref(collapsedStackFile, title, 30), "Hotspot flame graph - depth = 30"))
                                         )
                                 )
                                 .build()

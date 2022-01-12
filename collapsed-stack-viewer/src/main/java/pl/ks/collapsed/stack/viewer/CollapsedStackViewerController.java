@@ -66,6 +66,7 @@ class CollapsedStackViewerController {
     String upload(Model model,
                   @RequestParam("file") MultipartFile file,
                   @RequestParam("filter") String filter,
+                  @RequestParam("title") String title,
                   @RequestParam("totalTimeThreshold") BigDecimal totalTimeThreshold,
                   @RequestParam("selfTimeThreshold") BigDecimal selfTimeThreshold) throws Exception {
         String originalFilename = file.getOriginalFilename();
@@ -78,7 +79,8 @@ class CollapsedStackViewerController {
         }
 
         model.addAttribute("welcomePage", WelcomePage.builder()
-                .pages(collapsedStackPageCreator.generatePages(uncompressedFileName, totalTimeThreshold, selfTimeThreshold))
+                .pages(collapsedStackPageCreator.generatePages(uncompressedFileName, title, totalTimeThreshold, selfTimeThreshold))
+                .title(title)
                 .build());
         return "welcome";
     }
@@ -119,10 +121,11 @@ class CollapsedStackViewerController {
 
     @GetMapping(value = "/flame-graph", produces = "text/html")
     @ResponseBody
-    byte[] getFlameGraph(@RequestParam("collapsed") String collapsed) throws Exception {
+    byte[] getFlameGraph(@RequestParam("collapsed") String collapsed,
+                         @RequestParam("title") String title) throws Exception {
         String collapsedFilePath = TempFileUtils.getFilePath(collapsed);
         String outputHtmlFilePath = TempFileUtils.getFilePath(collapsed + ".html");
-        flameGraphExecutor.generateFlameGraphHtml5(collapsedFilePath, outputHtmlFilePath, "Flame graph", false, false);
+        flameGraphExecutor.generateFlameGraphHtml5(collapsedFilePath, outputHtmlFilePath, "Flame graph - " + title, false, false);
         byte[] response = null;
         try (InputStream inputStream = new FileInputStream(outputHtmlFilePath);) {
             response = IOUtils.toByteArray(inputStream);
@@ -133,7 +136,8 @@ class CollapsedStackViewerController {
 
     @GetMapping(value = "/flame-graph-no-thread", produces = "text/html")
     @ResponseBody
-    byte[] getFlameGraphNoThread(@RequestParam("collapsed") String collapsed) throws Exception {
+    byte[] getFlameGraphNoThread(@RequestParam("collapsed") String collapsed,
+                                 @RequestParam("title") String title) throws Exception {
         String collapsedFilepath = TempFileUtils.getFilePath(collapsed);
         String outputHtmlFilePath = TempFileUtils.getFilePath(collapsed + ".no-thread.html");
         String outputCollapsedFilePath = TempFileUtils.getFilePath(collapsed + "-no-thread.txt");
@@ -149,7 +153,7 @@ class CollapsedStackViewerController {
             }
         }
 
-        flameGraphExecutor.generateFlameGraphHtml5(outputCollapsedFilePath, outputHtmlFilePath, "Flame graph - no thread division", false, false);
+        flameGraphExecutor.generateFlameGraphHtml5(outputCollapsedFilePath, outputHtmlFilePath, "Flame graph - no thread division - " + title, false, false);
         byte[] response = null;
         try (InputStream inputStream = new FileInputStream(outputHtmlFilePath);) {
             response = IOUtils.toByteArray(inputStream);
@@ -161,7 +165,9 @@ class CollapsedStackViewerController {
 
     @GetMapping(value = "/flame-graph-hotspot-limited", produces = "text/html")
     @ResponseBody
-    byte[] getFlameGraphHotspotLimited(@RequestParam("limit") int limit, @RequestParam("collapsed") String collapsed) throws Exception {
+    byte[] getFlameGraphHotspotLimited(@RequestParam("limit") int limit,
+                                       @RequestParam("collapsed") String collapsed,
+                                       @RequestParam("title") String title) throws Exception {
         UUID newUuid = UUID.randomUUID();
         String outputCollapsedFilePath = TempFileUtils.getFilePath(newUuid + "-method.txt");
         String outputHtmlFilePath = TempFileUtils.getFilePath(newUuid + "-method.html");
@@ -191,7 +197,7 @@ class CollapsedStackViewerController {
             }
         }
 
-        flameGraphExecutor.generateFlameGraphHtml5(outputCollapsedFilePath, outputHtmlFilePath, "Flame graph - hotspot", true, true);
+        flameGraphExecutor.generateFlameGraphHtml5(outputCollapsedFilePath, outputHtmlFilePath, "Flame graph - hotspot - " + title, true, true);
         byte[] response = null;
         try (InputStream inputStream = new FileInputStream(outputHtmlFilePath);) {
             response = IOUtils.toByteArray(inputStream);
@@ -203,10 +209,11 @@ class CollapsedStackViewerController {
 
     @GetMapping(value = "/flame-graph-hotspot", produces = "text/html")
     @ResponseBody
-    byte[] getFlameGraphHotspot(@RequestParam("collapsed") String collapsed) throws Exception {
+    byte[] getFlameGraphHotspot(@RequestParam("collapsed") String collapsed,
+                                @RequestParam("title") String title) throws Exception {
         String collapsedFileName = TempFileUtils.getFilePath(collapsed);
         String outputHtmlFilePath = TempFileUtils.getFilePath(collapsed + ".hotspot.html");
-        flameGraphExecutor.generateFlameGraphHtml5(collapsedFileName, outputHtmlFilePath, "Flame graph - hotspot", true, true);
+        flameGraphExecutor.generateFlameGraphHtml5(collapsedFileName, outputHtmlFilePath, "Flame graph - hotspot - " + title, true, true);
         byte[] response = null;
         try (InputStream inputStream = new FileInputStream(outputHtmlFilePath);) {
             response = IOUtils.toByteArray(inputStream);
@@ -218,7 +225,8 @@ class CollapsedStackViewerController {
 
     @GetMapping(value = "/from-method", produces = "text/html")
     @ResponseBody
-    byte[] fromMethod(@RequestParam("collapsed") String collapsed, @RequestParam("method") String method) throws Exception {
+    byte[] fromMethod(@RequestParam("collapsed") String collapsed, @RequestParam("method") String method,
+                      @RequestParam("title") String title) throws Exception {
         UUID newUuid = UUID.randomUUID();
         String outputCollapsedFilePath = TempFileUtils.getFilePath(newUuid + "-method.txt");
         String outputHtmlFilePath = TempFileUtils.getFilePath(newUuid + "-method.html");
@@ -243,7 +251,7 @@ class CollapsedStackViewerController {
                 fromWriter.newLine();
             }
         }
-        flameGraphExecutor.generateFlameGraphHtml5(outputCollapsedFilePath, outputHtmlFilePath, "Callee", false, false);
+        flameGraphExecutor.generateFlameGraphHtml5(outputCollapsedFilePath, outputHtmlFilePath, "Callee - " + title + " - " + method, false, false);
         byte[] response = null;
         try (InputStream inputStream = new FileInputStream(outputHtmlFilePath);) {
             response = IOUtils.toByteArray(inputStream);
@@ -257,6 +265,7 @@ class CollapsedStackViewerController {
     String fromMethodRoot(Model model,
                           @RequestParam("collapsed") String collapsed,
                           @RequestParam("method") String method,
+                          @RequestParam("title") String title,
                           @RequestParam("totalTimeThreshold") BigDecimal totalTimeThreshold,
                           @RequestParam("selfTimeThreshold") BigDecimal selfTimeThreshold) throws Exception {
         UUID newUuid = UUID.randomUUID();
@@ -284,7 +293,8 @@ class CollapsedStackViewerController {
             }
         }
         model.addAttribute("welcomePage", WelcomePage.builder()
-                .pages(collapsedStackPageCreator.generatePages(fileName, totalTimeThreshold, selfTimeThreshold))
+                .pages(collapsedStackPageCreator.generatePages(fileName, title + " - " + method, totalTimeThreshold, selfTimeThreshold))
+                .title(title + " " + method)
                 .build());
         return "welcome";
     }
@@ -292,7 +302,9 @@ class CollapsedStackViewerController {
 
     @GetMapping(value = "/to-method", produces = "text/html")
     @ResponseBody
-    byte[] toMethod(@RequestParam("collapsed") String collapsed, @RequestParam("method") String method) throws Exception {
+    byte[] toMethod(@RequestParam("collapsed") String collapsed,
+                    @RequestParam("method") String method,
+                    @RequestParam("title") String title) throws Exception {
         UUID newUuid = UUID.randomUUID();
         String outputCollapsedFilePath = TempFileUtils.getFilePath(newUuid + "-method.txt");
         String outputHtmlFilePath = TempFileUtils.getFilePath(newUuid + "-method.html");
@@ -318,7 +330,7 @@ class CollapsedStackViewerController {
                 toWriter.newLine();
             }
         }
-        flameGraphExecutor.generateFlameGraphHtml5(outputCollapsedFilePath, outputHtmlFilePath, "Callers", true, false);
+        flameGraphExecutor.generateFlameGraphHtml5(outputCollapsedFilePath, outputHtmlFilePath, "Callers - " + title + " - " + method, true, false);
         byte[] response = null;
         try (InputStream inputStream = new FileInputStream(outputHtmlFilePath);) {
             response = IOUtils.toByteArray(inputStream);
@@ -332,6 +344,7 @@ class CollapsedStackViewerController {
     String toMethodRoot(Model model,
                         @RequestParam("collapsed") String collapsed,
                         @RequestParam("method") String method,
+                        @RequestParam("title") String title,
                         @RequestParam("totalTimeThreshold") BigDecimal totalTimeThreshold,
                         @RequestParam("selfTimeThreshold") BigDecimal selfTimeThreshold) throws Exception {
         UUID newUuid = UUID.randomUUID();
@@ -360,7 +373,8 @@ class CollapsedStackViewerController {
             }
         }
         model.addAttribute("welcomePage", WelcomePage.builder()
-                .pages(collapsedStackPageCreator.generatePages(fileName, totalTimeThreshold, selfTimeThreshold))
+                .pages(collapsedStackPageCreator.generatePages(fileName, title + " - " + method, totalTimeThreshold, selfTimeThreshold))
+                .title(title + " " + method)
                 .build());
         return "welcome";
     }

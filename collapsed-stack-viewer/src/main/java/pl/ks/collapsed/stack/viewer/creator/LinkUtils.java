@@ -15,45 +15,48 @@
  */
 package pl.ks.collapsed.stack.viewer.creator;
 
-import lombok.experimental.UtilityClass;
-
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 class LinkUtils {
-    String getFlameGraphHref(String collapsed) {
-        return "/flame-graph?collapsed=" + collapsed;
+    String getFlameGraphHref(String collapsed, String title) {
+        return "/flame-graph?collapsed=" + collapsed + "&title=" + URLEncoder.encode(title, Charset.defaultCharset());
     }
 
-    String getNoThreadFlameGraphHref(String collapsed) {
-        return "/flame-graph-no-thread?collapsed=" + collapsed;
+    String getNoThreadFlameGraphHref(String collapsed, String title) {
+        return "/flame-graph-no-thread?collapsed=" + collapsed + "&title=" + URLEncoder.encode(title, Charset.defaultCharset());
     }
 
-    String getHotspotFlameGraphHref(String collapsed) {
-        return "/flame-graph-hotspot?collapsed=" + collapsed;
+    String getHotspotFlameGraphHref(String collapsed, String title) {
+        return "/flame-graph-hotspot?collapsed=" + collapsed + "&title=" + URLEncoder.encode(title, Charset.defaultCharset());
     }
 
-    String getHotspotLLimitedFlameGraphHref(String collapsed, int limit) {
-        return "/flame-graph-hotspot-limited?limit=" +limit + "&collapsed=" + collapsed;
+    String getHotspotLLimitedFlameGraphHref(String collapsed, String title, int limit) {
+        return "/flame-graph-hotspot-limited?limit=" + limit + "&collapsed=" + collapsed + "&title=" + URLEncoder.encode(title, Charset.defaultCharset());
     }
 
-    String getFromMethodHref(String collapsed, String methodName) {
-        return "/from-method?collapsed=" + collapsed + "&method=" + URLEncoder.encode(methodName, Charset.defaultCharset());
+    String getFromMethodHref(String collapsed, String title, String methodName) {
+        return "/from-method?collapsed=" + collapsed + "&method=" + URLEncoder.encode(methodName, Charset.defaultCharset()) +
+                "&title=" + URLEncoder.encode(title, Charset.defaultCharset());
     }
 
-    String getFromMethodRootHref(String collapsed, String methodName, BigDecimal totalTimeThreshold, BigDecimal selfTimeThreshold) {
+    String getFromMethodRootHref(String collapsed, String title, String methodName, BigDecimal totalTimeThreshold, BigDecimal selfTimeThreshold) {
         return "/from-method-root?collapsed=" + collapsed + "&method=" + URLEncoder.encode(methodName, Charset.defaultCharset()) +
-                "&totalTimeThreshold=" + totalTimeThreshold + "&selfTimeThreshold=" + selfTimeThreshold;
+                "&totalTimeThreshold=" + totalTimeThreshold + "&selfTimeThreshold=" + selfTimeThreshold +
+                "&title=" + URLEncoder.encode(title, Charset.defaultCharset());
     }
 
-    String getToMethodHref(String collapsed, String methodName) {
-        return "/to-method?collapsed=" + collapsed + "&method=" + URLEncoder.encode(methodName, Charset.defaultCharset());
+    String getToMethodHref(String collapsed, String title, String methodName) {
+        return "/to-method?collapsed=" + collapsed + "&method=" + URLEncoder.encode(methodName, Charset.defaultCharset()) +
+                "&title=" + URLEncoder.encode(title, Charset.defaultCharset());
     }
 
-    String getToMethodRootHref(String collapsed, String methodName, BigDecimal totalTimeThreshold, BigDecimal selfTimeThreshold) {
+    String getToMethodRootHref(String collapsed, String title, String methodName, BigDecimal totalTimeThreshold, BigDecimal selfTimeThreshold) {
         return "/to-method-root?collapsed=" + collapsed + "&method=" + URLEncoder.encode(methodName, Charset.defaultCharset()) +
-                "&totalTimeThreshold=" + totalTimeThreshold + "&selfTimeThreshold=" + selfTimeThreshold;
+                "&totalTimeThreshold=" + totalTimeThreshold + "&selfTimeThreshold=" + selfTimeThreshold +
+                "&title=" + URLEncoder.encode(title, Charset.defaultCharset());
     }
 }

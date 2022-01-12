@@ -38,6 +38,9 @@
         <form method="POST" enctype="multipart/form-data" action="/upload" target="_blank">
             <p class="lead">File to upload: <input type="file" name="file"/><input type="submit" value="Submit"/></p>
             <p>
+                Title (will be visible at every page - useful if there are multiple windows opened): <input type="text" name="title" value="Collapsed"/>
+            </p>
+            <p>
                 Total time threshold (do not show method with total time less then): <input type="text" name="totalTimeThreshold" value="0.005"/>
             </p>
             <p>

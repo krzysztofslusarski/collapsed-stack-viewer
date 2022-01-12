@@ -15,15 +15,15 @@
  */
 package pl.ks.collapsed.stack.viewer.pages;
 
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
-
-import java.util.List;
 
 @Value
 @Builder
 @Getter
 public class WelcomePage {
     private List<Page> pages;
+    private String title;
 }

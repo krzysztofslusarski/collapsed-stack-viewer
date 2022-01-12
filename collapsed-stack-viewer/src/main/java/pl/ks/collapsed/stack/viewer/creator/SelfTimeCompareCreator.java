@@ -15,13 +15,7 @@
  */
 package pl.ks.collapsed.stack.viewer.creator;
 
-import lombok.RequiredArgsConstructor;
-import pl.ks.collapsed.stack.viewer.CollapsedStackCompareInfo;
-import pl.ks.collapsed.stack.viewer.MethodCompareInfo;
-import pl.ks.collapsed.stack.viewer.pages.Page;
-import pl.ks.collapsed.stack.viewer.pages.PageCreator;
-import pl.ks.collapsed.stack.viewer.pages.PageCreatorHelper;
-import pl.ks.collapsed.stack.viewer.pages.TableWithLinks;
+import static pl.ks.collapsed.stack.viewer.pages.TableWithLinks.Link.of;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -32,8 +26,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static pl.ks.collapsed.stack.viewer.pages.TableWithLinks.Link.of;
+import lombok.RequiredArgsConstructor;
+import pl.ks.collapsed.stack.viewer.CollapsedStackCompareInfo;
+import pl.ks.collapsed.stack.viewer.MethodCompareInfo;
+import pl.ks.collapsed.stack.viewer.pages.Page;
+import pl.ks.collapsed.stack.viewer.pages.PageCreator;
+import pl.ks.collapsed.stack.viewer.pages.PageCreatorHelper;
+import pl.ks.collapsed.stack.viewer.pages.TableWithLinks;
 
 @RequiredArgsConstructor
 public class SelfTimeCompareCreator implements PageCreator {
@@ -41,6 +40,7 @@ public class SelfTimeCompareCreator implements PageCreator {
     private final String collapsedStackFileName1;
     private final String collapsedStackFileName2;
     private final BigDecimal threshold;
+    private final String title;
 
     @Override
     public Page create() {
@@ -105,10 +105,10 @@ public class SelfTimeCompareCreator implements PageCreator {
                         of(methodEntry.getName()),
                         of(getPercent(methodEntry.getSelfDiff(), decimalFormat)),
                         of(getPercent(methodEntry.getSelfPercent1(), decimalFormat) + " --> " + getPercent(methodEntry.getSelfPercent2(), decimalFormat)),
-                        of(LinkUtils.getFromMethodHref(collapsedStackFileName1, methodEntry.getName()), "Callee"),
-                        of(LinkUtils.getToMethodHref(collapsedStackFileName1, methodEntry.getName()), "Callers"),
-                        of(LinkUtils.getFromMethodHref(collapsedStackFileName2, methodEntry.getName()), "Callee"),
-                        of(LinkUtils.getToMethodHref(collapsedStackFileName2, methodEntry.getName()), "Callers")
+                        of(LinkUtils.getFromMethodHref(collapsedStackFileName1, title, methodEntry.getName()), "Callee"),
+                        of(LinkUtils.getToMethodHref(collapsedStackFileName1, title, methodEntry.getName()), "Callers"),
+                        of(LinkUtils.getFromMethodHref(collapsedStackFileName2, title, methodEntry.getName()), "Callee"),
+                        of(LinkUtils.getToMethodHref(collapsedStackFileName2, title, methodEntry.getName()), "Callers")
                 ))
                 .collect(Collectors.toList());
     }
@@ -124,8 +124,8 @@ public class SelfTimeCompareCreator implements PageCreator {
                 .map(methodEntry -> List.of(
                         of(methodEntry.getName()),
                         of(getPercent(methodEntry.getSelfPercent2(), decimalFormat)),
-                        of(LinkUtils.getFromMethodHref(collapsedStackFileName2, methodEntry.getName()), "Callee"),
-                        of(LinkUtils.getToMethodHref(collapsedStackFileName2, methodEntry.getName()), "Callers")
+                        of(LinkUtils.getFromMethodHref(collapsedStackFileName2, title, methodEntry.getName()), "Callee"),
+                        of(LinkUtils.getToMethodHref(collapsedStackFileName2, title, methodEntry.getName()), "Callers")
                 ))
                 .collect(Collectors.toList());
     }
@@ -141,8 +141,8 @@ public class SelfTimeCompareCreator implements PageCreator {
                 .map(methodEntry -> List.of(
                         of(methodEntry.getName()),
                         of(getPercent(methodEntry.getSelfPercent1(), decimalFormat)),
-                        of(LinkUtils.getFromMethodHref(collapsedStackFileName1, methodEntry.getName()), "Callee"),
-                        of(LinkUtils.getToMethodHref(collapsedStackFileName1, methodEntry.getName()), "Callers")
+                        of(LinkUtils.getFromMethodHref(collapsedStackFileName1, title, methodEntry.getName()), "Callee"),
+                        of(LinkUtils.getToMethodHref(collapsedStackFileName1, title, methodEntry.getName()), "Callers")
                 ))
                 .collect(Collectors.toList());
     }

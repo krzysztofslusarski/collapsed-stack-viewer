@@ -15,11 +15,6 @@
  */
 package pl.ks.collapsed.stack.viewer.creator;
 
-import lombok.RequiredArgsConstructor;
-import pl.ks.collapsed.stack.viewer.CollapsedStackInfo;
-import pl.ks.collapsed.stack.viewer.MethodInfo;
-import pl.ks.collapsed.stack.viewer.pages.*;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -28,6 +23,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import pl.ks.collapsed.stack.viewer.CollapsedStackInfo;
+import pl.ks.collapsed.stack.viewer.MethodInfo;
+import pl.ks.collapsed.stack.viewer.pages.Page;
+import pl.ks.collapsed.stack.viewer.pages.PageCreator;
+import pl.ks.collapsed.stack.viewer.pages.PageCreatorHelper;
+import pl.ks.collapsed.stack.viewer.pages.ProfilingEntry;
+import pl.ks.collapsed.stack.viewer.pages.ProfilingLinks;
+import pl.ks.collapsed.stack.viewer.pages.ProfilingResult;
 
 @RequiredArgsConstructor
 public class TotalTimeCreator implements PageCreator {
@@ -37,6 +41,7 @@ public class TotalTimeCreator implements PageCreator {
     private final String collapsedStackFileName;
     private final BigDecimal totalTimeThreshold;
     private final BigDecimal selfTimeThreshold;
+    private final String title;
 
     @Override
     public Page create() {
@@ -61,10 +66,10 @@ public class TotalTimeCreator implements PageCreator {
                                                         .percent(getPercent(methodEntry, totalCount, decimalFormat))
                                                         .samples(methodEntry.getTotalSamples())
                                                         .profilingLinks(ProfilingLinks.builder()
-                                                                .fromMethodFlameGraph(LinkUtils.getFromMethodHref(collapsedStackFileName, methodEntry.getName()))
-                                                                .toMethodFlameGraph(LinkUtils.getToMethodHref(collapsedStackFileName, methodEntry.getName()))
-                                                                .fromMethodRoot(LinkUtils.getFromMethodRootHref(collapsedStackFileName, methodEntry.getName(), totalTimeThreshold, selfTimeThreshold))
-                                                                .toMethodRoot(LinkUtils.getToMethodRootHref(collapsedStackFileName, methodEntry.getName(), totalTimeThreshold, selfTimeThreshold))
+                                                                .fromMethodFlameGraph(LinkUtils.getFromMethodHref(collapsedStackFileName, title, methodEntry.getName()))
+                                                                .toMethodFlameGraph(LinkUtils.getToMethodHref(collapsedStackFileName, title, methodEntry.getName()))
+                                                                .fromMethodRoot(LinkUtils.getFromMethodRootHref(collapsedStackFileName, title, methodEntry.getName(), totalTimeThreshold, selfTimeThreshold))
+                                                                .toMethodRoot(LinkUtils.getToMethodRootHref(collapsedStackFileName, title, methodEntry.getName(), totalTimeThreshold, selfTimeThreshold))
                                                                 .build())
                                                         .build())
                                                 .collect(Collectors.toList())
